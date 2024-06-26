@@ -1,6 +1,7 @@
-import pickle as pkl # For loading the dataset file
+import pickle as pkl
+from typing import Dict, List, Union, Callable
 
-def load_dataset(filename="mnist.pkl"):
+def load_dataset(filename: str = "mnist.pkl") -> Dict[str, Union[List, int]]:
     """Load MNIST images & labels from a pickle file.
 
        Input:
@@ -9,13 +10,11 @@ def load_dataset(filename="mnist.pkl"):
        Output:
         - data_dict: A dictionary that contains the images and the labels.
     """
-    infile = open(filename, 'rb')     
-    data_dict = pkl.load(infile)
-    infile.close()
-
+    with open(filename, 'rb') as infile:
+        data_dict = pkl.load(infile)
     return data_dict
 
-def load_network(filename="network_3layer.pkl"):
+def load_network(filename: str = "network_3layer.pkl") -> List[Union[List, str]]:
     """Load a network from a pickle file.
 
        Input:
@@ -25,14 +24,11 @@ def load_network(filename="network_3layer.pkl"):
         - network: A list of layers, e.g. 
                     [['linear', Weights], 'relu', ['linear', Weights], ...]
     """
-    infile = open(filename, 'rb')     
-    network = pkl.load(infile)
-    infile.close()
-
+    with open(filename, 'rb') as infile:
+        network = pkl.load(infile)
     return network
 
-
-def display_image(X):
+def display_image(X: List[int]) -> None:
     """Display an image using ASCII chars.
        
        Input:
@@ -40,12 +36,13 @@ def display_image(X):
 
        Output: None.
     """
-    for i in range(0, 28*28):
-        if i % 28 == 0 and i > 0: print("")
+    for i in range(0, 28 * 28):
+        if i % 28 == 0 and i > 0: 
+            print("")
         print("." if X[i] < 125 else "@", end="")
     print("")
 
-def display_network(network):
+def display_network(network: List[Union[List, str]]) -> None:
     """Display a network's layers and layer sizes.
        
        Input:
@@ -54,10 +51,13 @@ def display_network(network):
 
        Output: None.
     """
-    print([layer[0]+": " + str(len(layer[1][0]))+"->"+str(len(layer[1])) if type(layer) == list else layer for layer in network])
+    layer_info = [
+        layer[0] + ": " + str(len(layer[1][0])) + "->" + str(len(layer[1])) if isinstance(layer, list) else layer
+        for layer in network
+    ]
+    print(layer_info)
 
-
-def calculate_accuracy(dataset, network, predictor):
+def calculate_accuracy(dataset: Dict[str, Union[List, int]], network: List[Union[List, str]], predictor: Callable[[List[Union[List, str]], List[int]], List[float]]) -> float:
     """Calculate the accuracy of a network's predictions.
        
        Input:
@@ -78,6 +78,7 @@ def calculate_accuracy(dataset, network, predictor):
         y = y_test[i]
         output = predictor(network, X)
         y_pred = output.index(max(output))
-        if y == y_pred: correct += 1
+        if y == y_pred: 
+            correct += 1
 
     return (correct / N) * 100
