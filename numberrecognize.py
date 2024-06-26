@@ -1,36 +1,28 @@
 import math
+from typing import List, Union
 
-def relu(x):
-    l = []
-    for i in x: l.append(0) if i<0 else l.append(i)
-    return l
+def relu(x: List[float]) -> List[float]:
+    return [max(0, i) for i in x]
 
-def sigmoid(x):
-    l = []
-    for i in x: l.append(0) if i<=-700 else l.append(1/(1+math.exp(-i))) if (i>-700 and i<700) else l.append(1)
-    return l
+def sigmoid(x: List[float]) -> List[float]:
+    return [0 if i <= -700 else (1 / (1 + math.exp(-i))) if -700 < i < 700 else 1 for i in x]
 
-def multiply(a,b):
-    return a*b
+def multiply(a: float, b: float) -> float:
+    return a * b
 
-def linear(x,w):
-    linear_list = []
-    for i in w:
-        a = list(map(multiply, x, i))
-        linear_list.append(sum(a))
-    return linear_list
+def linear(x: List[float], w: List[List[float]]) -> List[float]:
+    return [sum(map(multiply, x, weights)) for weights in w]
 
-def forward_pass(network, x_sample):
+def forward_pass(network: List[Union[List[Union[str, List[List[float]]]], str]], x_sample: List[float]) -> List[float]:
     x = x_sample
-    for i in network:
-        if type(i) == str:
-            if i.find("relu") != -1:
-                x = (relu(x)) 
-            elif i.find("sigmoid") != -1:
-                x = (sigmoid(x))  
-        if type(i) == list:
-            for j in i:
-                if type(j) == str:
-                    if j.find("linear") != -1:
-                        x =(linear(x, i[1]))                  
+    for layer in network:
+        if isinstance(layer, str):
+            if "relu" in layer:
+                x = relu(x)
+            elif "sigmoid" in layer:
+                x = sigmoid(x)
+        elif isinstance(layer, list):
+            for component in layer:
+                if isinstance(component, str) and "linear" in component:
+                    x = linear(x, layer[1])
     return x
